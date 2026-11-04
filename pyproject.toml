@@ -1,0 +1,73 @@
+[project]
+name = "cyberlead360"
+version = "1.0.0"
+description = "AI-powered cybersecurity B2B sales intelligence & prospect management platform (Streamlit modular monolith)."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.12,<3.14"
+authors = [{ name = "CyberLead 360 contributors" }]
+keywords = ["cybersecurity", "b2b", "sales-intelligence", "crm", "lead-scoring", "streamlit", "sqlalchemy", "llm"]
+dependencies = [
+    "streamlit>=1.40",
+    "pandas>=2.2",
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.14",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "email-validator>=2.2",
+    "plotly>=5.24",
+    "httpx>=0.28",
+    "beautifulsoup4>=4.12",
+    "python-dotenv>=1.0",
+    "anthropic>=1.0",
+    "openai>=1.55",
+]
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.2"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cyberlead360"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "N"]
+ignore = [
+    "S101",   # assert is fine in tests
+    "RUF001", # ambiguous unicode (French text in templates)
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.isort]
+known-third-party = ["alembic"]
+known-first-party = ["cyberlead360"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S104", "S105", "S106", "S311", "E501"]
+"src/cyberlead360/demo_seed.py" = ["S311"]  # deterministic, non-cryptographic demo randomness
+"src/cyberlead360/services/outreach_templates.py" = ["E501"]  # prose templates
+"pages/**" = ["N999"]              # Streamlit page files start with a digit by convention
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "integration: tests touching migrations, the UI runtime, or several layers at once",
+]
+filterwarnings = ["ignore::DeprecationWarning:streamlit.*"]

@@ -1,0 +1,28 @@
+# Default: single container + SQLite on a named volume.
+#   docker compose up --build
+# PostgreSQL variant:
+#   docker compose -f docker-compose.yml -f docker-compose.postgres.yml up --build
+services:
+  app:
+    build: .
+    image: cyberlead360:latest
+    ports:
+      - "127.0.0.1:8501:8501"   # bound to localhost: no public exposure without a proxy + auth
+    environment:
+      OPERATOR_NAME: ${OPERATOR_NAME:-demo.user}
+      LLM_PROVIDER: ${LLM_PROVIDER:-none}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-5-5}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      ENABLE_WEB_RETRIEVAL: ${ENABLE_WEB_RETRIEVAL:-false}
+      AUTO_MIGRATE: "true"
+    volumes:
+      - cyberlead-data:/app/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  cyberlead-data:

@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+      - name: Install Python and locked dependencies
+        run: uv sync --frozen --all-extras --python 3.12
+      - name: Lint (Ruff)
+        run: uv run ruff check .
+      - name: Format check (Ruff)
+        run: uv run ruff format --check .
+      - name: Unit tests
+        run: uv run pytest tests/unit -q
+      - name: Integration tests (migrations, services, UI pages)
+        run: uv run pytest tests/integration -q
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+      - name: Static security analysis (Bandit)
+        run: uvx bandit -q -r src -ll
+      - name: Dependency vulnerability audit (pip-audit)
+        run: |
+          uv export --frozen --all-extras --no-dev --no-emit-project --format requirements-txt -o requirements.txt
+          uvx pip-audit -r requirements.txt --disable-pip

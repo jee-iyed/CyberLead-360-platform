@@ -1,0 +1,9 @@
+company_name,website,industry,subindustry,country,city,employee_count,description
+Brightwater Hospital Group,https://www.brightwater-hospitals.example,healthcare,Hospitals,France,Rennes,1800,Fictional regional hospital group (sample data)
+Kestrel Payments,kestrel-payments.example,financial services,Payments,BE,Brussels,240,Fictional payment processor (sample data)
+Ironbridge Foundry SAS,https://ironbridge-foundry.example,manufacturing,Metal casting,FR,Saint-Étienne,620,Fictional foundry (sample data)
+Ironbridge Foundry,ironbridge-foundry.example,manufacturing,,FR,,,Duplicate of the previous row (in-file duplicate demo)
+Polaris Cloudworks,https://polaris-cloud.example,technology,SaaS,Germany,Berlin,95,Fictional SaaS vendor (sample data)
+Harbor Freight Lines,harbor-lines.example,logistics,,ES,Valencia,410,Fictional logistics firm (sample data)
+X,not a domain,astrology,,Narnia,,-12,Invalid row kept to demonstrate error reporting
+Meridian Water Utility,https://meridian-water.example,energy_utilities,Water,CH,Lausanne,330,Fictional utility (sample data)

@@ -1,0 +1,21 @@
+[theme]
+base = "light"
+primaryColor = "#2563EB"
+backgroundColor = "#F8FAFC"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#0B1220"
+font = "sans serif"
+
+[server]
+headless = true
+maxUploadSize = 5            # MB — keep in sync with MAX_UPLOAD_MB
+address = "localhost"       # local only; Docker overrides with --server.address=0.0.0.0
+enableXsrfProtection = true
+enableCORS = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = "none"    # never show tracebacks to users
