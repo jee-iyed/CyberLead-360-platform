@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from cyberlead360.domain.enums import FactType, Language, MessageType, ServiceLine, Tone
+from cyberlead360.domain.enums import FactType, Industry, Language, MessageType, ServiceLine, Tone
 from cyberlead360.services.ai_service import FIRST_NAME_PLACEHOLDER, CompanyContext, GroundingFact
 
 VALUE_EN: dict[ServiceLine, str] = {
@@ -34,6 +34,35 @@ VALUE_FR: dict[ServiceLine, str] = {
     ServiceLine.COMPLIANCE_SUPPORT: "Nous accompagnons les démarches de certification et de conformité (ISO 27001, NIS2, DORA) de manière pragmatique.",
     ServiceLine.OT_SECURITY: "Nous sommes spécialisés dans les environnements industriels / OT, où disponibilité et sûreté priment.",
 }
+
+# French sector phrases ("organisations <phrase>"), so FR drafts never mix in English labels.
+SECTOR_FR: dict[Industry, str] = {
+    Industry.MANUFACTURING: "de l'industrie",
+    Industry.HEALTHCARE: "de la santé",
+    Industry.FINANCIAL_SERVICES: "des services financiers",
+    Industry.TECHNOLOGY: "des technologies",
+    Industry.ENERGY_UTILITIES: "de l'énergie et des services publics",
+    Industry.TELECOM: "des télécommunications",
+    Industry.LOGISTICS: "de la logistique et du transport",
+    Industry.RETAIL: "du commerce et de l'e-commerce",
+    Industry.PUBLIC_SECTOR: "du secteur public",
+    Industry.EDUCATION: "de l'éducation",
+    Industry.PROFESSIONAL_SERVICES: "des services professionnels",
+    Industry.OTHER: "de votre secteur",
+}
+
+
+def sector_fr(ctx: CompanyContext) -> str:
+    return SECTOR_FR[ctx.industry] if ctx.industry else "de votre secteur"
+
+
+def lower_label(label: str) -> str:
+    """Lower-case a label for mid-sentence use, keeping acronyms ("SOC / MDR")."""
+    return label if label[:2].isupper() else label[:1].lower() + label[1:]
+
+
+def service_label(service: ServiceLine, lang: Language) -> str:
+    return service.label_fr if lang == Language.FR else service.label
 
 
 @dataclass(frozen=True)
@@ -74,10 +103,7 @@ def _hook(ctx: CompanyContext, fact: GroundingFact | None, lang: Language) -> st
     name = ctx.company_name
     if fact is None:
         if lang == Language.FR:
-            return (
-                f"Je m'intéresse aux organisations du secteur {ctx.industry_label.lower()} "
-                f"comme {name}."
-            )
+            return f"Je m'intéresse aux organisations {sector_fr(ctx)} comme {name}."
         return (
             f"I work with organizations in the {ctx.industry_label.lower()} sector such as {name}."
         )
@@ -165,6 +191,7 @@ def render_template(
     sender_company: str,
 ) -> TemplateDraft:
     fact = pick_hook_fact(ctx)
+    svc = service_label(service, lang)
     value = (VALUE_FR if lang == Language.FR else VALUE_EN)[service]
     notes = []
     if fact is None:
@@ -184,8 +211,8 @@ def render_template(
                     if fact
                     else ""
                 )
-                + f"J'accompagne des acteurs du secteur {ctx.industry_label.lower()} sur "
-                f"des sujets de {service.label.lower()}. Au plaisir d'échanger. — {sender_name}"
+                + f"J'accompagne des acteurs {sector_fr(ctx)} sur des sujets de type "
+                f"{lower_label(svc)}. Au plaisir d'échanger. — {sender_name}"
             )
         else:
             body = (
@@ -196,7 +223,7 @@ def render_template(
                     else ""
                 )
                 + f"I work with {ctx.industry_label.lower()} organizations on "
-                f"{service.label.lower()} topics. Happy to connect. — {sender_name}"
+                f"{lower_label(svc)} topics. Happy to connect. — {sender_name}"
             )
         return TemplateDraft(
             None,
@@ -230,15 +257,15 @@ def render_template(
     body = "\n\n".join(p for p in parts if p)
 
     subjects_en = {
-        MessageType.COLD_EMAIL: f"{service.label} — {ctx.company_name}",
-        MessageType.FOLLOW_UP: f"Following up — {service.label}",
-        MessageType.MEETING_INVITATION: f"30 minutes on {service.label.lower()}?",
+        MessageType.COLD_EMAIL: f"{svc} — {ctx.company_name}",
+        MessageType.FOLLOW_UP: f"Following up — {svc}",
+        MessageType.MEETING_INVITATION: f"30 minutes on {lower_label(svc)}?",
         MessageType.POST_MEETING_FOLLOW_UP: f"Next steps — {ctx.company_name}",
     }
     subjects_fr = {
-        MessageType.COLD_EMAIL: f"{service.label} — {ctx.company_name}",
-        MessageType.FOLLOW_UP: f"Suite à mon message — {service.label}",
-        MessageType.MEETING_INVITATION: f"30 minutes sur le sujet {service.label.lower()} ?",
+        MessageType.COLD_EMAIL: f"{svc} — {ctx.company_name}",
+        MessageType.FOLLOW_UP: f"Suite à mon message — {svc}",
+        MessageType.MEETING_INVITATION: f"30 minutes sur le sujet : {lower_label(svc)} ?",
         MessageType.POST_MEETING_FOLLOW_UP: f"Prochaines étapes — {ctx.company_name}",
     }
     subject = (subjects_fr if lang == Language.FR else subjects_en)[message_type]

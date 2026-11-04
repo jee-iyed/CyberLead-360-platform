@@ -11,7 +11,7 @@ Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
 | 1 | `uv lock --check` | `Resolved 71 packages` (lockfile consistent) |
 | 2 | `uv run ruff check .` | `All checks passed!` |
 | 3 | `uv run ruff format --check .` | `89 files already formatted` |
-| 4 | `uv run pytest -q --cov=cyberlead360` | **190 passed**, line coverage **89 %** (measured, 3671 statements) |
+| 4 | `uv run pytest -q --cov=cyberlead360` | **776 passed**, line coverage **89 %** (measured, 3683 statements) |
 | 5 | `uvx bandit -q -r src -ll` | No medium/high findings (exit 0) |
 | 6 | `uvx pip-audit -r <uv export>` | `No known vulnerabilities found` |
 | 7 | `uv run python scripts/initialize_database.py` (fresh file) | `Database ready (SQLite). Active scoring rules: v1.` |
@@ -29,6 +29,8 @@ Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
 | 19 | `psql` checks | `alembic_version` = `44bf92bc38e9`; 13 tables; `companies` = 84; `created_at` is `timestamp with time zone` |
 | 20 | Browser walkthrough of all 11 pages on PostgreSQL | All pages rendered without exceptions; template draft #5 created through the UI (write path) |
 | 21 | GitHub Actions run [41795993231](https://github.com/jee-iyed/CyberLead-360-platform/actions/runs/41795993231) on `371ac11` | `quality` (Ruff lint + format, unit tests, integration tests) and `security` (Bandit, pip-audit): **success** |
+| 22 | Live LLM via the OpenAI-compatible connector: Google Gemini `gemini-3.5-flash`, free tier | Summary, opportunity analysis, EN cold e-mail and FR LinkedIn note all returned schema-valid output, cited only approved fact ids, and passed the risk-claim filter. `gemini-2.5-flash` returned 404 (retired); 503 and 429 responses fell back to templates as designed |
+| 23 | Draft generated in the browser with "Use LLM" on | Draft stored with `generation_mode=llm`, model `gemini-3.5-flash`, 812 input / 261 output tokens |
 
 ## Acceptance criteria
 | Criterion | Status | Evidence |
@@ -44,7 +46,7 @@ Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
 | Calculate explainable lead scores / view breakdowns | ✅ | 35 scoring tests; Lead Qualification page |
 | Store public company facts with sources | ✅ | NOT NULL FK + tests |
 | Generate an outreach draft without an API key | ✅ | template tests; manual UI generation |
-| Optionally use a configured LLM API | ⚠️ Implemented, tested with stubs | Adapters tested with stubbed SDK clients; **no live API call was made** (no key available) |
+| Optionally use a configured LLM API | ✅ (OpenAI-compatible) / ⚠️ (Anthropic) | (22)–(23) live with Gemini; the Anthropic adapter is tested with stubbed SDK clients only |
 | Record interactions; move opportunities; track replies and meetings | ✅ | pipeline tests |
 | Accurate conversion metrics | ✅ | KPI unit tests with hand-computed expectations |
 | Export data | ✅ | export tests |
@@ -55,7 +57,10 @@ Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
 ## Not verified / known gaps
 * **PostgreSQL in the automated suite**: PostgreSQL was verified manually through Docker
   (18)–(20); the pytest suite itself still runs on SQLite.
-* **Live LLM calls** (Anthropic / OpenAI-compatible): no API key was used. The request
-  shapes follow the installed SDKs (`messages.parse`, `chat.completions.create`).
+* **Live Anthropic calls**: no Anthropic key was used. The request shape follows the
+  installed SDK (`messages.parse`). The OpenAI-compatible path was verified live with Gemini.
+* **Bugs found by the live run and fixed**: summaries and analyses opened with
+  "Hello {{first_name}}" (greeting rule now outreach-only), and French templates mixed in
+  English industry/service labels (French labels added). Both have regression tests.
 * UI interactions beyond the manual walkthrough are covered by service-level tests and
   headless page rendering (initial state), not by end-to-end browser automation.

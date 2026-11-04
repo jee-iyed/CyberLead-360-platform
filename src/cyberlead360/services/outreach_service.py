@@ -175,6 +175,8 @@ class OutreachService:
             "You write first drafts of B2B outreach messages for a cybersecurity services "
             "firm. A human will review and edit every draft before anything is sent.\n"
             + GUARDRAIL_RULES
+            + f"6. Address the recipient only with the literal placeholder "
+            f"{FIRST_NAME_PLACEHOLDER}.\n"
         )
         recipient = f"Recipient role: {job_title}." if job_title else "Recipient role: unknown."
         user = (

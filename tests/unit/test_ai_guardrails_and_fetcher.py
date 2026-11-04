@@ -12,6 +12,8 @@ from cyberlead360.integrations.llm.base import estimate_cost
 from cyberlead360.integrations.public_sources.html_extractor import extract_page
 from cyberlead360.integrations.public_sources.safe_fetcher import SafeFetcher, is_public_ip
 from cyberlead360.services.ai_service import (
+    GUARDRAIL_RULES,
+    INTERNAL_NOTE_RULE,
     CompanyContext,
     GroundingFact,
     check_citations,
@@ -116,6 +118,27 @@ def test_templates_render_for_every_combination(lang, mtype, tone) -> None:  # t
         assert len(draft.body) <= 300 and draft.subject is None
     else:
         assert draft.subject
+
+
+@pytest.mark.parametrize("service", list(ServiceLine))
+@pytest.mark.parametrize("industry", [*Industry, None])
+@pytest.mark.parametrize("mtype", list(MessageType))
+def test_french_templates_use_no_english_labels(service, industry, mtype) -> None:  # type: ignore[no-untyped-def]
+    # Regression: FR drafts used to say "secteur financial services" / "compliance support".
+    ctx = ctx_with()  # no facts: exercises the sector-level hook
+    ctx.industry = industry
+    draft = render_template(ctx, mtype, Tone.PROFESSIONAL, Language.FR, service, "Alex", "SecFirm")
+    text = f"{draft.subject or ''} {draft.body}"
+    english = [service.label, *(i.label for i in Industry)]
+    leaked = [label for label in english if label.lower() in text.lower() and label != "SOC / MDR"]
+    assert leaked == []
+    assert "soc / mdr" not in text  # acronyms keep their case mid-sentence
+
+
+def test_greeting_placeholder_rule_is_outreach_only() -> None:
+    # Regression: the shared rules made summaries start with "Hello {{first_name}}".
+    assert "{{first_name}}" not in GUARDRAIL_RULES
+    assert "do not greet" in INTERNAL_NOTE_RULE
 
 
 def test_structured_output_model_rejects_bad_payload() -> None:

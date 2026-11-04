@@ -95,5 +95,23 @@ a risky claim.
 LLM providers are replaced by `FakeProvider` in tests. No network is used. Tests cover a
 successful call, prompt hygiene (no e-mail or name in the prompt, delimiter present),
 removal of unknown citations, fallback on risky output and on provider errors, and summary
-fallback. Live provider calls were **not** exercised during development because no key was
-configured.
+fallback. Live calls were exercised once against **Google Gemini** through the OpenAI-compatible
+connector (see `docs/VERIFICATION.md`). No live Anthropic call was made.
+
+## Using Google Gemini (free tier)
+Gemini exposes an OpenAI-compatible endpoint, so no extra code is needed:
+```
+LLM_PROVIDER=openai_compatible
+OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+OPENAI_API_KEY=<key from https://aistudio.google.com/apikey>
+OPENAI_MODEL=gemini-3.5-flash
+LLM_MAX_OUTPUT_TOKENS=8000
+```
+* Model names are retired over time: `gemini-2.5-flash` returned HTTP 404 for a new key
+  in November 2026. List the models available to your key with `GET <base_url>/models`.
+* Gemini models reason before answering, and that counts against the output limit, so
+  keep `LLM_MAX_OUTPUT_TOKENS` well above the default 2000.
+* The free tier returns HTTP 503 (overloaded) and 429 (rate limit) under load. The app then
+  falls back to the template and stores the reason on the draft.
+* Free-tier prompts may be used by Google to improve its products. Prompts contain company
+  facts but never contact names, e-mails or phones; still, use a paid tier for real prospects.

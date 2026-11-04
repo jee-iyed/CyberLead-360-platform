@@ -238,7 +238,7 @@ Secrets are `SecretStr` and are never displayed or stored in the database.
 | `AUTO_MIGRATE` | `true` | Run Alembic at app start |
 | `LLM_PROVIDER` | `none` | `none`, `anthropic` or `openai_compatible` |
 | `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` | — / `claude-opus-5-5` | Claude configuration |
-| `OPENAI_API_KEY` / `OPENAI_BASE_URL` / `OPENAI_MODEL` | — | Any OpenAI-compatible endpoint |
+| `OPENAI_API_KEY` / `OPENAI_BASE_URL` / `OPENAI_MODEL` | — | Any OpenAI-compatible endpoint (OpenAI, Gemini, Ollama…); see `docs/AI_DESIGN.md` |
 | `LLM_MAX_OUTPUT_TOKENS`, `LLM_MAX_INPUT_CHARS`, `LLM_TIMEOUT_SECONDS` | 2000 / 12000 / 60 | Token, context and time budgets |
 | `LLM_INPUT_PRICE_PER_MTOK`, `LLM_OUTPUT_PRICE_PER_MTOK` | 0 | Enables cost estimates |
 | `ENABLE_WEB_RETRIEVAL` | `false` | Allow fetching a company's own public website |
@@ -300,12 +300,12 @@ in CI. Threat model: [docs/SECURITY.md](docs/SECURITY.md). Privacy: [docs/GDPR.m
 * Retrieval is limited to one page of the company's own site, and a residual DNS-rebinding risk is mitigated only at the application layer.
 * The LLM risk-claim filter is pattern-based. It reduces risk but does not replace human review, which is why approval is mandatory.
 * Template outreach quotes the stored fact verbatim, so a French draft can contain an English fact.
-* The real Anthropic/OpenAI calls are covered by mocked tests only. No live API call was made during development.
+* The OpenAI-compatible connector was checked live against Google Gemini (`gemini-3.5-flash`). The Anthropic connector is covered by mocked tests only: no live Anthropic call was made.
 * Not a legal compliance product: [GDPR.md](docs/GDPR.md) lists what the operator must still do.
 
 ## 17. Testing
 ```powershell
-uv run pytest -q                 # 190 tests: unit + integration + UI page rendering
+uv run pytest -q                 # 776 tests: unit + integration + UI page rendering
 uv run ruff check . ; uv run ruff format --check .
 ```
 Coverage includes scoring boundaries and determinism, missing data, rule versions,

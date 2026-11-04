@@ -10,7 +10,7 @@
 > pipeline, analytics with documented denominators, and GDPR-oriented controls: a
 > suppression list, objections, anonymization, retention and an audit log. Technically it's
 > a layered Python modular monolith (Streamlit, SQLAlchemy, Alembic, Pydantic, Pandas,
-> Plotly) with 190 automated tests, Docker and CI."
+> Plotly) with 776 automated tests, Docker and CI."
 
 ## Lead scoring vs cybersecurity risk assessment (key distinction)
 | | Lead score (this app) | Security risk assessment |
@@ -69,7 +69,10 @@ background worker for bulk jobs, scheduled retention, and observability.
 country lists weren't normalized, so the settings page would have reported phantom
 changes); CSV delimiter sniffing split single-column files on spaces; a pandas 3 `melt`
 name clash; and Streamlit hot-reload keeping stale modules. Each was fixed and is now
-covered by a test where applicable.
+covered by a test where applicable. The first live LLM run (Gemini) then exposed two more
+issues that mocks could not: a shared prompt rule made internal summaries open with
+"Hello {{first_name}}", and French templates mixed in English labels. Both are fixed and
+covered by regression tests.
 
 ## Suggested LinkedIn project description
 > **CyberLead 360: AI-assisted B2B sales intelligence for cybersecurity providers.**
@@ -79,7 +82,7 @@ covered by a test where applicable.
 > optional LLMs (Claude / OpenAI-compatible), guarded against prompt injection and
 > unsupported security claims, with mandatory human approval. Includes a CRM pipeline,
 > conversion analytics with explicit denominators, GDPR-oriented controls (suppression,
-> anonymization, retention, audit), an SSRF-hardened web fetcher, 190 automated tests,
+> anonymization, retention, audit), an SSRF-hardened web fetcher, 776 automated tests,
 > Docker and GitHub Actions CI.
 
 ## CV bullet points
@@ -87,4 +90,4 @@ covered by a test where applicable.
 * Implemented a **deterministic, explainable lead-scoring engine** with versioned configuration, controlled recalculation and a clear separation of missing vs negative evidence.
 * Integrated **LLMs behind a provider interface** (Anthropic structured outputs, OpenAI-compatible), with grounding, prompt-injection defences, output guardrails, PII minimization and a template fallback.
 * Engineered **privacy and security controls**: hashed suppression list, anonymization, retention, audit log, CSV formula-injection protection, and an SSRF-safe HTTP fetcher.
-* Delivered **190 automated tests** (unit, integration, migrations, headless UI) with Ruff, Bandit, pip-audit, Docker and GitHub Actions CI.
+* Delivered **776 automated tests** (unit, integration, migrations, headless UI) with Ruff, Bandit, pip-audit, Docker and GitHub Actions CI.

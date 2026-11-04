@@ -222,6 +222,20 @@ class ServiceLine(StrEnum):
             "ot_security": "Industrial / OT security",
         }[self.value]
 
+    @property
+    def label_fr(self) -> str:
+        return {
+            "penetration_testing": "Tests d'intrusion",
+            "web_security_audit": "Audit de sécurité web",
+            "network_assessment": "Évaluation de la sécurité réseau",
+            "cloud_security": "Sécurité cloud",
+            "security_awareness": "Sensibilisation à la sécurité",
+            "soc_mdr": "SOC / MDR",
+            "incident_response_readiness": "Préparation à la réponse aux incidents",
+            "compliance_support": "Accompagnement à la conformité",
+            "ot_security": "Sécurité industrielle / OT",
+        }[self.value]
+
 
 class MeetingStatus(StrEnum):
     SCHEDULED = "scheduled"
