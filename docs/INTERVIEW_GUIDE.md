@@ -36,7 +36,7 @@ The app therefore blocks such claims in AI output and explains that the score is
 | Hash-only suppression list | Honour objections without keeping the e-mail | Can't display which e-mail was suppressed |
 | Archive instead of delete; merge archives the duplicate | No silent data loss, auditability | More rows; hard delete exists for erasure |
 | Distinct-company KPIs | 3 e-mails to one company ≠ 3 contacts | Message-level metrics need separate views |
-| SQLite default, PostgreSQL supported | Zero-setup demo | Tests run on SQLite. PostgreSQL DDL checked offline only |
+| SQLite default, PostgreSQL supported | Zero-setup demo | Automated tests run on SQLite; PostgreSQL verified manually via Docker Compose |
 | Streamlit | Very fast to build data apps | Rerun model; limited fine-grained UI control; no built-in auth |
 
 ## Likely questions and answers

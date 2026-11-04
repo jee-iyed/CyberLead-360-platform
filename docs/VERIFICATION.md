@@ -1,6 +1,7 @@
 # Verification report
 
 Environment: Windows 11, Python 3.12.14 (managed by uv 0.12.19), run on 2026-11-04.
+Container runs: Docker Engine 29.6.2, `python:3.12-slim` (Python 3.12.16), `postgres:17-alpine`.
 Resolved versions: streamlit 1.66.1, pandas 3.1.0, SQLAlchemy 2.1.7, Alembic 1.20.1,
 Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
 
@@ -20,6 +21,13 @@ Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
 | 11 | `docker compose config -q` (both variants) | Valid |
 | 12 | Alembic offline SQL for PostgreSQL (`upgrade head --sql`) | 13 `CREATE TABLE` (12 + `alembic_version`), `TIMESTAMP WITH TIME ZONE` columns |
 | 13 | Manual run: `streamlit run app.py`, browser | Home, Dashboard, Lead Qualification, AI Outreach (draft generated through the UI) and Analytics rendered with seeded data |
+| 14 | `docker compose build` (Docker Engine 29.6.2) | Image `cyberlead360:latest` built (about 4 min cold, 1.9 GB unpacked) |
+| 15 | `docker compose up -d` | Container `healthy`; `/_stcore/health` returns `ok`; runs as `uid=10001(appuser)`; published only on `127.0.0.1:8501` |
+| 16 | In container: `seed_demo.py`, then `verify_setup.py` | Seed counts identical to (8); 6/6 checks OK; Dashboard rendered in the browser |
+| 17 | `docker compose -f docker-compose.yml -f docker-compose.postgres.yml up -d` (random `POSTGRES_PASSWORD`) | `db` healthy, then `app` healthy |
+| 18 | On PostgreSQL 17: `initialize_database.py`, `seed_demo.py`, `verify_setup.py` | `Database ready (postgresql+psycopg)`; same seed counts; 6/6 OK |
+| 19 | `psql` checks | `alembic_version` = `44bf92bc38e9`; 13 tables; `companies` = 84; `created_at` is `timestamp with time zone` |
+| 20 | Browser walkthrough of all 11 pages on PostgreSQL | All pages rendered without exceptions; template draft #5 created through the UI (write path) |
 
 ## Acceptance criteria
 | Criterion | Status | Evidence |
@@ -40,13 +48,12 @@ Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
 | Accurate conversion metrics | ✅ | KPI unit tests with hand-computed expectations |
 | Export data | ✅ | export tests |
 | Run automated tests | ✅ | (4) |
-| Use Docker Compose | ⚠️ Config validated, image **not built** | Docker daemon was not running during verification |
+| Use Docker Compose | ✅ | (14)–(20): SQLite and PostgreSQL variants built, started and exercised |
 | Understand the architecture from documentation | ✅ | README + docs/ |
 
 ## Not verified / known gaps
-* **Docker image build and container run**: not executed (Docker Desktop daemon unavailable).
-  Run `docker compose up --build` to validate.
-* **PostgreSQL runtime**: DDL compiled offline only. The test suite runs on SQLite.
+* **PostgreSQL in the automated suite**: PostgreSQL was verified manually through Docker
+  (18)–(20); the pytest suite itself still runs on SQLite.
 * **Live LLM calls** (Anthropic / OpenAI-compatible): no API key was used. The request
   shapes follow the installed SDKs (`messages.parse`, `chat.completions.create`).
 * **GitHub Actions**: the workflow was written, but it has not run, because no remote
