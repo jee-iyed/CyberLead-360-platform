@@ -1,5 +1,7 @@
 # 🛡️ CyberLead 360
 
+[![CI](https://github.com/jee-iyed/CyberLead-360-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/jee-iyed/CyberLead-360-platform/actions/workflows/ci.yml)
+
 **AI-Powered Cybersecurity B2B Sales Intelligence & Prospect Management Platform**
 
 CyberLead 360 helps cybersecurity service providers (MSSPs, audit and pentest firms,

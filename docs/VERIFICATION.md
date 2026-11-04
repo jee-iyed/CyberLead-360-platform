@@ -28,6 +28,7 @@ Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
 | 18 | On PostgreSQL 17: `initialize_database.py`, `seed_demo.py`, `verify_setup.py` | `Database ready (postgresql+psycopg)`; same seed counts; 6/6 OK |
 | 19 | `psql` checks | `alembic_version` = `44bf92bc38e9`; 13 tables; `companies` = 84; `created_at` is `timestamp with time zone` |
 | 20 | Browser walkthrough of all 11 pages on PostgreSQL | All pages rendered without exceptions; template draft #5 created through the UI (write path) |
+| 21 | GitHub Actions run [41795993231](https://github.com/jee-iyed/CyberLead-360-platform/actions/runs/41795993231) on `371ac11` | `quality` (Ruff lint + format, unit tests, integration tests) and `security` (Bandit, pip-audit): **success** |
 
 ## Acceptance criteria
 | Criterion | Status | Evidence |
@@ -56,7 +57,5 @@ Pydantic 2.14.2, Plotly 7.1.0, httpx 0.28.1, anthropic 2.4.0, openai 3.44.0.
   (18)–(20); the pytest suite itself still runs on SQLite.
 * **Live LLM calls** (Anthropic / OpenAI-compatible): no API key was used. The request
   shapes follow the installed SDKs (`messages.parse`, `chat.completions.create`).
-* **GitHub Actions**: the workflow was written, but it has not run, because no remote
-  repository exists yet.
 * UI interactions beyond the manual walkthrough are covered by service-level tests and
   headless page rendering (initial state), not by end-to-end browser automation.
